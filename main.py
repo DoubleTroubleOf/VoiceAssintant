@@ -6,8 +6,11 @@ import webbrowser
 from  googleapiclient.discovery import build
 
 import schedle_search, schedule_notification, work_with_json, updateDB
-from opts import opts, search
+from opts import opts
 
+
+
+app_language = work_with_json.read_from_file()['language']
 
 
 
@@ -35,6 +38,7 @@ def speak(what):
     speak_engine.say(what)
     speak_engine.runAndWait()
     speak_engine.stop()
+
 
 # check for what day find schedule
 def recognise_day(temp_cmd):
@@ -71,17 +75,18 @@ def parse_schedule_result(schedule):
     return result
 
 def callback(recognizer, audio):
+    global app_language
     name = day = new_lang = ''
     try:
-        voice = recognizer.recognize_google(audio, language=search["language"] ).lower()
+        voice = recognizer.recognize_google(audio, language=app_language ).lower()
         print('[log] Распознано: ' + voice)
 
-        if voice.startswith(opts[search["language"]]['alias']):
+        if voice.startswith(opts[app_language]['alias']):
             cmd = voice
 
-            for x in opts[search["language"]]['alias']:
+            for x in opts[app_language]['alias']:
                 cmd = cmd.replace(x,'').strip()
-            for x in opts[search["language"]]['tbr']:
+            for x in opts[app_language]['tbr']:
                 cmd = cmd.replace(x,'').strip()
             
             name = cmd
@@ -106,7 +111,7 @@ def callback(recognizer, audio):
 # recognition of command to do
 def recognize_cmd(cmd):
     RC = {'cmd': '', 'percent': 0}
-    for c, v in opts[search["language"]]['cmds'].items():
+    for c, v in opts[app_language]['cmds'].items():
         for x in v:
             vrt = fuzz.partial_ratio(cmd,x)
             if vrt > RC['percent']:
@@ -146,7 +151,12 @@ def execute_cmd(cmd, name='', day = '', lang = ''):
     return
 
 def change_lang(new_lang):
-    search['language'] = new_lang
+    global app_language 
+    app_language = new_lang
+    content = work_with_json.read_from_file()
+    content['language'] = app_language
+    work_with_json.write_to_file(content)
+    
     speak("Язык поменян на {}".format(new_lang))
 
 # function to find and play music

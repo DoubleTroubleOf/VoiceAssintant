@@ -78,4 +78,4 @@ opts = {
 
 }
 
-search = {"group": 416, "department": "ФККПI", "language": "ru-Ru", "chat_id": 335272370 }
+#search = {"group": 416, "department": "ФККПI", "language": "ru-Ru", "chat_id": 335272370 }

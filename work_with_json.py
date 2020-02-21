@@ -1,8 +1,9 @@
 import json, os
 
 def write_to_file(data):
-    with open('search_opts.dat', 'w') as json_file:
-        json_file.writelines(data.decode())
+    #json_data = json.dumps(data)
+    with open('search_opts.json', 'w') as json_file:
+        json.dump(data, json_file)
 
 def read_from_file():
     content = ''
