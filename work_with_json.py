@@ -6,7 +6,7 @@ def write_to_file(data):
 
 def read_from_file():
     content = ''
-    with open(r'{0}\search_opts.dat'.format(os.getcwd() ), 'r') as json_file:
+    with open(r'{0}\search_opts.json'.format(os.getcwd() ), 'r') as json_file:
         content = json_file.read()
     
     datastore = json.loads(content)

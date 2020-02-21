@@ -25,6 +25,7 @@ def calculate_week(day='today'):
     week = 1 if int(diff)%2==0 else 2
     week_day = week_dictionary[time_now.weekday()]
     return week, week_day
+    
 
 
 # funcrion to find needed file with schedule
@@ -37,11 +38,12 @@ def find_file(group, depart, when='today'):
 
     content = ''
     # check if file exsists in directory
-    if os.path.isfile(r'{0}\Folder\group{1} {2}.txt'.format(os.getcwd(),depart,group)):
-        with open(r'{0}\Folder\group{1} {2}.txt'.format(os.getcwd(),depart,group), 'r') as file:   # read file to get data
+    if os.path.isfile(r'{0}\Database\group{1} {2}.txt'.format(os.getcwd(),depart,group)):
+        with open(r'{0}\Database\group{1} {2}.txt'.format(os.getcwd(),depart,group), 'r') as file:   # read file to get data
             content = file.read()
     else:
         print ("File not exist")
+        
 
     #get json format from string
     datastore = json.loads(content)
@@ -50,6 +52,7 @@ def find_file(group, depart, when='today'):
     for key in datastore.keys():
         if key.startswith(reg):
             res[key] = datastore[key]
+            break
     #print the rezult of search
     result = []
     for key, value in res.items():

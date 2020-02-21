@@ -2,10 +2,20 @@ import os, time, datetime
 import speech_recognition as sr
 from fuzzywuzzy import fuzz
 import pyttsx3
-from opts import opts
 import webbrowser
 from  googleapiclient.discovery import build
-import schedle_search, schedule_notification, work_with_json
+
+import schedle_search, schedule_notification, work_with_json, updateDB
+from opts import opts, search
+
+
+
+
+langs = {
+    'uk-Uk':('ukrainian', 'украинский'),
+    'ru-Ru':('російська', 'russian'),
+    'en-En':('англійська', 'английский' ),
+}
 
 days = {
     'today': ('сегодня','сейчас'),
@@ -13,10 +23,9 @@ days = {
     'tommorow': ('завтра','потом'),
 }
 
-#GROUP = 416
-#DEPART = "ФККПI"
 
 
+# play audio
 def speak(what):
     speak_engine = pyttsx3.init()
 
@@ -27,16 +36,29 @@ def speak(what):
     speak_engine.runAndWait()
     speak_engine.stop()
 
-def recognise_day(request):
+# check for what day find schedule
+def recognise_day(temp_cmd):
     RC = {'day': '', 'percent': 0}
     for key, value in days.items():
         for x in value:
-            vrt = fuzz.partial_ratio(request,x)
+            vrt = fuzz.partial_ratio(temp_cmd,x)
             if vrt > RC['percent']:
                 RC['day'] = key
                 RC['percent'] = vrt
     return RC
 
+# check for what day find schedule
+def recognise_new_lang(temp_cmd):
+    RC = {'lang': '', 'percent': 0}
+    for key, value in langs.items():
+        for x in value:
+            vrt = fuzz.partial_ratio(temp_cmd,x)
+            if vrt > RC['percent']:
+                RC['lang'] = key
+                RC['percent'] = vrt
+    return RC
+
+# transform result to readable view
 def parse_schedule_result(schedule):
     if len(schedule) == 0:
         return "На заданый день занятий не найдено!"
@@ -48,18 +70,18 @@ def parse_schedule_result(schedule):
         result += '\n{0}'.format(res)
     return result
 
-
 def callback(recognizer, audio):
+    name = day = new_lang = ''
     try:
-        voice = recognizer.recognize_google(audio, language='ru-Ru').lower()
+        voice = recognizer.recognize_google(audio, language=search["language"] ).lower()
         print('[log] Распознано: ' + voice)
 
-        if voice.startswith(opts['alias']):
+        if voice.startswith(opts[search["language"]]['alias']):
             cmd = voice
 
-            for x in opts['alias']:
+            for x in opts[search["language"]]['alias']:
                 cmd = cmd.replace(x,'').strip()
-            for x in opts['tbr']:
+            for x in opts[search["language"]]['tbr']:
                 cmd = cmd.replace(x,'').strip()
             
             name = cmd
@@ -67,21 +89,24 @@ def callback(recognizer, audio):
             day = recognise_day(name)
             for i in days[day['day']]:
                 name = name.replace(i,'').strip()
-            cmd = recognaze_cmd(cmd)
+            new_lang = recognise_new_lang(name)
+            for i in langs[new_lang['lang']]:
+                name = name.replace(i,'').strip()
 
-            if day != '':
-                execute_cmd(cmd['cmd'], name, day)
-            else:
-                execute_cmd(cmd['cmd'],name)
+            cmd = recognize_cmd(cmd)
+
+            execute_cmd(cmd['cmd'], name, day, new_lang['lang'])
     
     except sr.UnknownValueError:
         print('[log] Голос не распознан!')
     except sr.RequestError:
         print('[log] Неизвесная ошибка, проверьте интернет!')
 
-def recognaze_cmd(cmd):
+
+# recognition of command to do
+def recognize_cmd(cmd):
     RC = {'cmd': '', 'percent': 0}
-    for c, v in opts['cmds'].items():
+    for c, v in opts[search["language"]]['cmds'].items():
         for x in v:
             vrt = fuzz.partial_ratio(cmd,x)
             if vrt > RC['percent']:
@@ -89,7 +114,9 @@ def recognaze_cmd(cmd):
                 RC['percent'] = vrt
     return RC
 
-def execute_cmd(cmd, name='', day = ''):
+
+# start execution of command
+def execute_cmd(cmd, name='', day = '', lang = ''):
     if cmd == 'ctime':
         now = datetime.datetime.now()
         speak("Сейчас " + str(now.hour) + ":" + str(now.minute))
@@ -101,19 +128,28 @@ def execute_cmd(cmd, name='', day = ''):
             print(res)
             message = schedule_notification.notification()
             message.send_schedule(parse_schedule_result(res))
-
         except Exception:
             print('Oooops!')
 
     elif cmd == 'find': # find music in Youtube
         speak('Сейчас включаю... Подождите')
         find_Music(name)
-
+    elif cmd == 'update':
+        speak('Обновляю... Подождие пожалуйста.')
+        rezult = updateDB.update()
+        speak(rezult)
+    elif cmd == 'lang':
+        change_lang(lang)
     else:
         speak("Команда не распознана!")
 
     return
 
+def change_lang(new_lang):
+    search['language'] = new_lang
+    speak("Язык поменян на {}".format(new_lang))
+
+# function to find and play music
 def find_Music(name):
     api_key = 'AIzaSyCAMGs2dO8TakW4zpSFgTV0OvBgvWO5mV8'
 
@@ -130,8 +166,6 @@ def find_Music(name):
     webbrowser.open_new_tab(url)
 
 #start
-
-
 r = sr.Recognizer()
 micro = sr.Microphone(device_index=1)
 
@@ -140,6 +174,6 @@ with micro as source:
 
 speak('Здраствуй, мой хозяин!')
 speak("Василиса слушает")
-r.listen_in_background(micro,callback)
+r.listen_in_background(micro, callback)
 while True:
     time.sleep(0.1)
