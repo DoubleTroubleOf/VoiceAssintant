@@ -26,7 +26,7 @@ langs = {
 }
 
 days = {
-    "uk-UK":
+    "uk-Uk":
     {
         'today': ('сьогодні','зараз'),
         'after tommorow': ('післязавтра','після','через день'),
@@ -53,7 +53,7 @@ def speak(what):
     speak_engine = pyttsx3.init()
 
     voices = speak_engine.getProperty('voices')
-    speak_engine.setProperty('voice', voices[5].id)
+    speak_engine.setProperty('voice', voices[4].id)
     print(what)
     speak_engine.say(what)
     speak_engine.runAndWait()
@@ -89,8 +89,11 @@ def parse_schedule_result(schedule):
     result = """"""
     for lesson in schedule:
         res = """
+        {count} {count_number}
 {number}   {name}  {clas} {cabinet}
-{teacher}   {teacher_name}""".format(number=lesson[0][-1],  
+{teacher}   {teacher_name}""".format(count=opts[app_language]['answers'][8],
+                                    count_number= len(schedule),
+                                    number=lesson[0][-1],  
                                     name=lesson[1], cabinet=lesson[2], 
                                     clas=opts[app_language]['answers'][1],
                                     teacher=opts[app_language]['answers'][2],
@@ -160,6 +163,8 @@ def execute_cmd(cmd, name='', day = '', lang = ''):
             res = schedle_search.find_file(content['group'],content['department'],day['day'])
             print(res)
             message = schedule_notification.notification()
+            text = parse_schedule_result(res)
+            speak(text)
             message.send_schedule(parse_schedule_result(res))
         except Exception:
             print('Oooops!')
@@ -168,7 +173,7 @@ def execute_cmd(cmd, name='', day = '', lang = ''):
         speak('Сейчас включаю... Подождите')
         find_Music(name)
     elif cmd == 'update':
-        speak('opts[app_language]['answers'][6]')
+        speak(opts[app_language]['answers'][6])
         rezult = updateDB.update()
         speak(rezult)
     elif cmd == 'lang':
