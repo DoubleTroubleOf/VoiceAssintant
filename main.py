@@ -8,7 +8,12 @@ from  googleapiclient.discovery import build
 import schedle_search, schedule_notification, work_with_json, updateDB
 from opts import opts
 
+#TODO 
+"""
+продумати занесення нових даних користувача (реєстрація та зміна користувача) в файлі search_opts.json
 
+
+"""
 
 app_language = work_with_json.read_from_file()['language']
 

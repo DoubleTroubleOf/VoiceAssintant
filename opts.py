@@ -1,14 +1,6 @@
 #TOKEN TO GET CONTROL OF TELEGRAM BOT
 TOKEN = '1031615541:AAHzP4D7w7fhk5jhpsONRQgqShrfcP-y2Dw'
 
-#TODO 
-"""
-========================
-
-
-
-"""
-
 #DICTIONARY WHICH IS MAIN TO CONTROL VOICE ASSISTANT
 opts = {
     "ru-Ru": 
@@ -49,10 +41,10 @@ opts = {
 
 
         'answers': ("У вибраний день занять не знайдено.",          # 0
-                    "в аудиторії:", "Викладач:",               # 1, 2
-                    "Мову змінено на ",                              # 3
-                    "Доброго дня, хазаїне!",  "Василіса слухає",  # 4, 5
-                    "Оновлюю... зачекайте будь-ласка",             # 6
+                    "в аудиторії:", "Викладач:",                    # 1, 2
+                    "Мову змінено на ",                             # 3
+                    "Доброго дня, хазаїне!",  "Василіса слухає",    # 4, 5
+                    "Оновлюю... зачекайте будь-ласка",              # 6
                     "Команда не розпізнана!"),                      # 7  
 
         'cmds': 
@@ -76,11 +68,11 @@ opts = {
         'tbr': ('tell', 'show', 'speak', 'turn on', 'search', 'find', 'look for', 'demonstrate', 'update', 'download'),
 
         'answers': ("No classes found for the given day!",          # 0
-                    "in the audience:", "Teacher:",               # 1, 2
-                    "The language is changed to",                              # 3
-                    "Hello my master!",  "Vasilisa is listening",  # 4, 5
-                    "Updating ... Wait, please.",             # 6
-                    "The command is not recognized!"),                      # 7  
+                    "in the audience:", "Teacher:",                 # 1, 2
+                    "The language is changed to",                   # 3
+                    "Hello my master!",  "Vasilisa is listening",   # 4, 5
+                    "Updating ... Wait, please.",                   # 6
+                    "The command is not recognized!"),              # 7  
 
         'cmds': 
         {

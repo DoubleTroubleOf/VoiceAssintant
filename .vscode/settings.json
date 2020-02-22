@@ -1,7 +1,7 @@
 {
     "python.pythonPath": "C:\\Program Files (x86)\\Python37-32\\python.exe",
     "python.linting.pylintEnabled": false,
-    "python.linting.enabled": true,
+    "python.linting.enabled": false,
     "python.linting.banditEnabled": false,
     "python.linting.pylamaEnabled": false,
     "python.linting.mypyEnabled": false,
