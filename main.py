@@ -52,12 +52,25 @@ days = {
 # play audio
 def speak(what):
     speak_engine = pyttsx3.init()
-
     voices = speak_engine.getProperty('voices')
-    rate = speak_engine.getProperty('rate')
+    v = None
+    for voice in voices:
+        if app_language == 'uk-Uk' or app_language =='ru-Ru':
+            if voice.name == "Aleksandr+CLB":
+                speak_engine.setProperty('rate', 150) 
+                v = voice
+                break
+            #v = voice if voice.name == "Aleksandr" else None
+        elif app_language == 'en-En':
+            if voice.name == 'Microsoft David Desktop - English (United States)':
+                speak_engine.setProperty('rate', 80) 
+                v = voice
+                break
+            #v = voice if voice.name.startswith("Microsoft David Destop") else None
+
     
-    speak_engine.setProperty('voice', voices[17].id)      # 8
-    speak_engine.setProperty('rate', rate-50)      # 8
+    speak_engine.setProperty('voice', v.id)      # 8
+         # 8
     print(what)
     speak_engine.say(what)
     speak_engine.runAndWait()
