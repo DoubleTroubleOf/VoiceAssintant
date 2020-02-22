@@ -21,9 +21,24 @@ langs = {
 }
 
 days = {
-    'today': ('сегодня','сейчас'),
-    'after tommorow': ('послезавтра','после','через день'),
-    'tommorow': ('завтра','потом'),
+    "uk-UK":
+    {
+        'today': ('сьогодні','зараз'),
+        'after tommorow': ('післязавтра','після','через день'),
+        'tommorow': ('завтра','потім'),
+    },
+    "ru-Ru":
+    {
+        'today': ('сегодня','сейчас'),
+        'after tommorow': ('послезавтра','после','через день'),
+        'tommorow': ('завтра','потом'),
+    },
+    "en-En":
+    {
+        'today': ('today','now'),
+        'after tommorow': ('after tommorow','after','in one day'),
+        'tommorow': ('tommorow','later'),
+    },
 }
 
 
@@ -43,7 +58,7 @@ def speak(what):
 # check for what day find schedule
 def recognise_day(temp_cmd):
     RC = {'day': '', 'percent': 0}
-    for key, value in days.items():
+    for key, value in days[app_language].items():
         for x in value:
             vrt = fuzz.partial_ratio(temp_cmd,x)
             if vrt > RC['percent']:
@@ -65,12 +80,16 @@ def recognise_new_lang(temp_cmd):
 # transform result to readable view
 def parse_schedule_result(schedule):
     if len(schedule) == 0:
-        return "На заданый день занятий не найдено!"
+        return opts[app_language]['answers'][0]
     result = """"""
     for lesson in schedule:
         res = """
-{number}   {name}  в аудитории: {cabinet}
-Преподователь:   {teacher}""".format(number=lesson[0][-1], name=lesson[1], cabinet=lesson[2], teacher=lesson[3])
+{number}   {name}  {clas} {cabinet}
+{teacher}   {teacher_name}""".format(number=lesson[0][-1],  
+                                    name=lesson[1], cabinet=lesson[2], 
+                                    clas=opts[app_language]['answers'][1],
+                                    teacher=opts[app_language]['answers'][2],
+                                    teacher_name=lesson[3])
         result += '\n{0}'.format(res)
     return result
 
@@ -79,6 +98,8 @@ def callback(recognizer, audio):
     name = day = new_lang = ''
     try:
         voice = recognizer.recognize_google(audio, language=app_language ).lower()
+        
+        # LOG
         print('[log] Распознано: ' + voice)
 
         if voice.startswith(opts[app_language]['alias']):
@@ -92,7 +113,7 @@ def callback(recognizer, audio):
             name = cmd
             
             day = recognise_day(name)
-            for i in days[day['day']]:
+            for i in days[app_language][day['day']]:
                 name = name.replace(i,'').strip()
             new_lang = recognise_new_lang(name)
             for i in langs[new_lang['lang']]:
@@ -103,8 +124,10 @@ def callback(recognizer, audio):
             execute_cmd(cmd['cmd'], name, day, new_lang['lang'])
     
     except sr.UnknownValueError:
+        # LOG
         print('[log] Голос не распознан!')
     except sr.RequestError:
+        # LOG
         print('[log] Неизвесная ошибка, проверьте интернет!')
 
 
@@ -140,13 +163,13 @@ def execute_cmd(cmd, name='', day = '', lang = ''):
         speak('Сейчас включаю... Подождите')
         find_Music(name)
     elif cmd == 'update':
-        speak('Обновляю... Подождие пожалуйста.')
+        speak('opts[app_language]['answers'][6]')
         rezult = updateDB.update()
         speak(rezult)
     elif cmd == 'lang':
         change_lang(lang)
     else:
-        speak("Команда не распознана!")
+        speak(opts[app_language]['answers'][6])
 
     return
 
@@ -157,7 +180,7 @@ def change_lang(new_lang):
     content['language'] = app_language
     work_with_json.write_to_file(content)
     
-    speak("Язык поменян на {}".format(new_lang))
+    speak("{0} {1}".format(opts[app_language]['answers'][3], new_lang))
 
 # function to find and play music
 def find_Music(name):
@@ -182,8 +205,8 @@ micro = sr.Microphone(device_index=1)
 with micro as source:
     r.adjust_for_ambient_noise(source)
 
-speak('Здраствуй, мой хозяин!')
-speak("Василиса слушает")
+speak(opts[app_language]['answers'][4])
+speak(opts[app_language]['answers'][5])
 r.listen_in_background(micro, callback)
 while True:
     time.sleep(0.1)

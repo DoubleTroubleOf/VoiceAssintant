@@ -2,6 +2,7 @@ import requests
 import collections, json, codecs
 import os,datetime,time
 
+
 #убираем дублирование групп в словаре по департаментах
 def get_unique_items(list_of_dicts, key="NAME"):
     # Count how many times each key occurs.
