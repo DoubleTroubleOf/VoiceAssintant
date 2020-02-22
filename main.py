@@ -10,7 +10,8 @@ from opts import opts
 
 #TODO 
 """
-продумати занесення нових даних користувача (реєстрація та зміна користувача) в файлі search_opts.json
+1. продумати занесення нових даних користувача (реєстрація та зміна користувача) в файлі search_opts.json
+2. Переробити перетворення тексту в мову в функції SPEAK
 
 
 """
@@ -53,7 +54,10 @@ def speak(what):
     speak_engine = pyttsx3.init()
 
     voices = speak_engine.getProperty('voices')
-    speak_engine.setProperty('voice', voices[4].id)
+    rate = speak_engine.getProperty('rate')
+    
+    speak_engine.setProperty('voice', voices[17].id)      # 8
+    speak_engine.setProperty('rate', rate-50)      # 8
     print(what)
     speak_engine.say(what)
     speak_engine.runAndWait()
@@ -89,9 +93,11 @@ def parse_schedule_result(schedule):
     result = """"""
     for lesson in schedule:
         res = """
-        {count} {count_number}
-{number}   {name}  {clas} {cabinet}
-{teacher}   {teacher_name}""".format(count=opts[app_language]['answers'][8],
+        {count}{count_number};
+
+
+{number}.   {name},  {clas} {cabinet};                      
+{teacher}   {teacher_name};""".format(count=opts[app_language]['answers'][8],
                                     count_number= len(schedule),
                                     number=lesson[0][-1],  
                                     name=lesson[1], cabinet=lesson[2], 
