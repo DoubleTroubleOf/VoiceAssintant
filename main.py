@@ -1,9 +1,14 @@
-import os, time, datetime
+import os, time, datetime, random
 import speech_recognition as sr
 from fuzzywuzzy import fuzz
+from pygame import mixer
 import pyttsx3
 import webbrowser
 from  googleapiclient.discovery import build
+
+
+from playsound import playsound
+from gtts import gTTS
 
 import schedle_search, schedule_notification, work_with_json, updateDB
 from opts import opts
@@ -11,7 +16,6 @@ from opts import opts
 #TODO 
 """
 1. продумати занесення нових даних користувача (реєстрація та зміна користувача) в файлі search_opts.json
-2. Переробити перетворення тексту в мову в функції SPEAK
 
 
 """
@@ -51,30 +55,18 @@ days = {
 
 # play audio
 def speak(what):
-    speak_engine = pyttsx3.init()
-    voices = speak_engine.getProperty('voices')
-    v = None
-    for voice in voices:
-        if app_language == 'uk-Uk' or app_language =='ru-Ru':
-            if voice.name == "Aleksandr+CLB":
-                speak_engine.setProperty('rate', 150) 
-                v = voice
-                break
-            #v = voice if voice.name == "Aleksandr" else None
-        elif app_language == 'en-En':
-            if voice.name == 'Microsoft David Desktop - English (United States)':
-                speak_engine.setProperty('rate', 80) 
-                v = voice
-                break
-            #v = voice if voice.name.startswith("Microsoft David Destop") else None
+    speak_engine = gTTS(text=what, lang = app_language[:2]) 
 
-    
-    speak_engine.setProperty('voice', v.id)      # 8
-         # 8
+    file_name = 'answer.mp3'
+
+    speak_engine.save(file_name)
+    playsound(file_name,True)
+    os.remove(file_name)
     print(what)
-    speak_engine.say(what)
-    speak_engine.runAndWait()
-    speak_engine.stop()
+    
+    
+    
+   
 
 
 # check for what day find schedule
@@ -121,7 +113,8 @@ def parse_schedule_result(schedule):
     return result
 
 def callback(recognizer, audio):
-    global app_language
+    global app_language, stop_listening
+    #stop_listening(wait_for_stop=False)
     name = day = new_lang = ''
     try:
         voice = recognizer.recognize_google(audio, language=app_language ).lower()
@@ -149,13 +142,14 @@ def callback(recognizer, audio):
             cmd = recognize_cmd(cmd)
 
             execute_cmd(cmd['cmd'], name, day, new_lang['lang'])
-    
+
     except sr.UnknownValueError:
         # LOG
         print('[log] Голос не распознан!')
     except sr.RequestError:
         # LOG
         print('[log] Неизвесная ошибка, проверьте интернет!')
+    return 
 
 
 # recognition of command to do
@@ -232,10 +226,11 @@ r = sr.Recognizer()
 micro = sr.Microphone(device_index=1)
 
 with micro as source:
-    r.adjust_for_ambient_noise(source)
+    r.adjust_for_ambient_noise(source)  
+            
+speak(opts[app_language]['answers'][4] + opts[app_language]['answers'][5])
 
-speak(opts[app_language]['answers'][4])
-speak(opts[app_language]['answers'][5])
-r.listen_in_background(micro, callback)
+stop_listening = r.listen_in_background(micro, callback)
+
 while True:
     time.sleep(0.1)
