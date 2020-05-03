@@ -1,7 +1,6 @@
 import os, time, datetime, random
 import speech_recognition as sr
 from fuzzywuzzy import fuzz
-from pygame import mixer
 import pyttsx3
 import webbrowser
 from  googleapiclient.discovery import build
@@ -95,16 +94,12 @@ def recognise_new_lang(temp_cmd):
 def parse_schedule_result(schedule):
     if len(schedule) == 0:
         return opts[app_language]['answers'][0]
-    result = """"""
+    result = """{count}{count_number};\n""".format(count=opts[app_language]['answers'][8],
+                                        count_number= len(schedule))
+
     for lesson in schedule:
-        res = """
-        {count}{count_number};
-
-
-{number}.   {name},  {clas} {cabinet};                      
-{teacher}   {teacher_name};""".format(count=opts[app_language]['answers'][8],
-                                    count_number= len(schedule),
-                                    number=lesson[0][-1],  
+        res = """{number}.   {name},  {clas} {cabinet};                      
+{teacher}   {teacher_name};""".format(number=lesson[0][-1],  
                                     name=lesson[1], cabinet=lesson[2], 
                                     clas=opts[app_language]['answers'][1],
                                     teacher=opts[app_language]['answers'][2],
@@ -169,26 +164,26 @@ def execute_cmd(cmd, name='', day = '', lang = ''):
     if cmd == 'ctime':
         now = datetime.datetime.now()
         speak("Сейчас " + str(now.hour) + ":" + str(now.minute))
-
     elif cmd == 'schedule':
         try:
             content = work_with_json.read_from_file()
             res = schedle_search.find_file(content['group'],content['department'],day['day'])
-            print(res)
+            if res == -1:
+                raise Exception()
             message = schedule_notification.notification()
             text = parse_schedule_result(res)
             speak(text)
             message.send_schedule(parse_schedule_result(res))
         except Exception:
-            print('Oooops!')
-
-    elif cmd == 'find': # find music in Youtube
-        speak('Сейчас включаю... Подождите')
-        find_Music(name)
+            speak(opts[app_language]['answers'][10])
     elif cmd == 'update':
-        speak(opts[app_language]['answers'][6])
-        rezult = updateDB.update()
-        speak(rezult)
+        try:
+            speak(opts[app_language]['answers'][6])
+            rezult = updateDB.update()
+            if rezult == 0:
+                speak(opts[app_language]['answers'][9])
+        except:
+            speak(opts[app_language]['answers'][10])
     elif cmd == 'lang':
         change_lang(lang)
     else:
@@ -205,21 +200,8 @@ def change_lang(new_lang):
     
     speak("{0} {1}".format(opts[app_language]['answers'][3], new_lang))
 
-# function to find and play music
-def find_Music(name):
-    api_key = 'AIzaSyCAMGs2dO8TakW4zpSFgTV0OvBgvWO5mV8'
 
-    youtube = build('youtube', 'v3', developerKey=api_key)
-    req = youtube.search().list(  part="snippet",
-        maxResults=1,
-        q=name,
-        type='video')
 
-    res = req.execute()
-    videoId = res['items'][0]['id']['videoId']
-            #open new tab in browser
-    url = "https://www.youtube.com/watch?v=" + videoId
-    webbrowser.open_new_tab(url)
 
 #start
 r = sr.Recognizer()

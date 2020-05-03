@@ -1,6 +1,7 @@
 import datetime
 import os,copy, os.path
 import json
+import sqlite3
 
 week_dictionary = {
     0:'Пнд',
@@ -31,7 +32,7 @@ def calculate_week(day='today'):
 # funcrion to find needed file with schedule
 # and read it. After this function find needed
 # lessons to current day
-def find_file(group, depart, when='today'):
+def find_file1(group, depart, when='today'):
     week, day_week = calculate_week(when)
 
     reg = "{0}.{1}.".format(week, day_week)
@@ -52,12 +53,49 @@ def find_file(group, depart, when='today'):
     for key in datastore.keys():
         if key.startswith(reg):
             res[key] = datastore[key]
-            break
+            continue
     #print the rezult of search
     result = []
     for key, value in res.items():
         result.append( (key, value['discipline'], value['classroom'], value['teacher']) )
     return result
  
+
+
+# funcrion to find needed file with schedule
+# and read it. After this function find needed
+# lessons to current day
+def find_file(group, depart, when='today'):
+    week, day_week = calculate_week(when)
+
+    reg = "{0}.{1}.".format(week, day_week)
+
+    content = ''
+    try:
+        conn = sqlite3.connect('database.db')
+        cur = conn.cursor()
+
+        sql = "SELECT * FROM Shedules WHERE group_number = ? AND faculty = ?"
+        vals = (group, depart)
+        cur.execute(sql, vals)
+        data = cur.fetchone()
+        if data:
+            content = data[2]
+        else:
+            raise Exception("Something goes wrong! \nTry again later.")    #розклад не знайдено
+        datastore = json.loads(content)
+        res = {}
+         #get one day`s lessons
+        for key in datastore.keys():
+            if key.startswith(reg):
+                res[key] = datastore[key]
+                continue
+        #print the rezult of search
+        result = []
+        for key, value in res.items():
+            result.append( (key, value['discipline'], value['classroom'], value['teacher']) )
+        return result
+    except Exception as e:
+        return -1
 
 
