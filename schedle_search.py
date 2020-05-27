@@ -75,7 +75,7 @@ def find_file(group, depart, when='today'):
         conn = sqlite3.connect('database.db')
         cur = conn.cursor()
 
-        sql = "SELECT * FROM Shedules WHERE group_number = ? AND faculty = ?"
+        sql = "SELECT * FROM `Shedules` WHERE `group_number`=? AND `faculty`=?"
         vals = (group, depart)
         cur.execute(sql, vals)
         data = cur.fetchone()

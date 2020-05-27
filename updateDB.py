@@ -61,7 +61,7 @@ def write_to_db(grp):
                     
                     if cur.fetchone():
                         sql = "UPDATE Shedules SET shedule = ? WHERE group_number = ? AND faculty = ?"
-                        vals = (shed.decode(), grup, fac)
+                        vals = (shed.decode(), group, fac)
                     else:
                         sql = "INSERT INTO Shedules (group_number, faculty, shedule) VALUES (?, ?, ?)"
                         vals = (group, fac, shed.decode())
