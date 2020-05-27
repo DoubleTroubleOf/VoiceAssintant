@@ -103,7 +103,6 @@ class Recognize():
         group, fac = None, None
         
         for item in temp_cmd:
-            print(item, "\n", re.match(r"факуль[\w\s]+", item), "\n", re.match(r"[\d]+", item))
             if re.match(r"факуль[\w]+", item):
                 fac = temp_cmd[temp_cmd.index(item) + 1]
             if re.match(r"[\d]+", item):

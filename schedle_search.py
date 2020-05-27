@@ -45,10 +45,7 @@ class Search():
             cur = conn.cursor()
 
             sql = "SELECT * FROM Shedules WHERE group_number=? AND faculty=?"
-            #sql = "SELECT * FROM Shedules"
 
-            bit = depart.encode('utf-8')
-            bit2 = "ФККПІ".encode('utf-8')
             vals = (int(group), depart)
             cur.execute(sql, vals)
             data = cur.fetchone()
