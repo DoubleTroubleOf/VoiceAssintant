@@ -18,5 +18,7 @@ class notification:
     #FUNCRTION TO SEND SCHEDULE TO USER AS ANSVER FOR HIS REQUEST IN VOICE ASSISTANT
     def send_schedule(self, schedule):
         content = work_with_json.read_from_file()
+        if content['chat_id'] == "":
+            return
         self.bot.send_message(content['chat_id'], schedule)
 
